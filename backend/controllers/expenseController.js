@@ -1,53 +1,46 @@
-import { Expense } from "../models/expense.js";
+import Expense from "../models/expenseModel.js";
 
-// Create an expense
-export const createExpense = async (req, res) => {
+//  Add Expense
+export const addExpense = async (req, res) => {
+  const { title, amount, category, date } = req.body;
+  const userId = req.session.user.id;
+
   try {
-    const { amount, category, description } = req.body;
-    const newExpense = new Expense({ amount, category, description });
-    await newExpense.save();
-    res.status(201).json(newExpense);
+    const expense = new Expense({ userId, title, amount, category, date });
+    await expense.save();
+    res.status(201).json({ message: "Expense added successfully", expense });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: "Error adding expense", error });
   }
 };
 
-// Get all expenses
+// Get All Expenses
 export const getExpenses = async (req, res) => {
+  const userId = req.session.user.id;
+
   try {
-    const expenses = await Expense.find();
-    res.json(expenses);
+    const expenses = await Expense.find({ userId });
+    res.status(200).json(expenses);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Error fetching expenses", error });
   }
 };
 
-// Update an expense
-export const updateExpense = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedExpense = await Expense.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
-    if (!updatedExpense) {
-      return res.status(404).json({ error: "Expense not found" });
-    }
-    res.json(updatedExpense);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+// Filter Expenses
+export const filterExpenses = async (req, res) => {
+  const { category, startDate, endDate } = req.query;
+  const userId = req.session.user.id;
 
-// Delete an expense
-export const deleteExpense = async (req, res) => {
   try {
-    const { id } = req.params;
-    const deletedExpense = await Expense.findByIdAndDelete(id);
-    if (!deletedExpense) {
-      return res.status(404).json({ error: "Expense not found" });
+    const filter = { userId };
+    if (category) filter.category = category;
+    if (startDate && endDate) {
+      filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
-    res.json({ message: "Expense deleted successfully" });
+
+    const expenses = await Expense.find(filter);
+    res.status(200).json(expenses);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Error filtering expenses", error });
   }
 };
