@@ -1,12 +1,12 @@
 import Expense from "../models/expenseModel.js";
 
-//  Add Expense
+// Add Expense
 export const addExpense = async (req, res) => {
-  const { title, amount, category, date } = req.body;
+  const { amount, category, description } = req.body;
   const userId = req.session.user.id;
 
   try {
-    const expense = new Expense({ userId, title, amount, category, date });
+    const expense = new Expense({ userId, amount, category, description });
     await expense.save();
     res.status(201).json({ message: "Expense added successfully", expense });
   } catch (error) {

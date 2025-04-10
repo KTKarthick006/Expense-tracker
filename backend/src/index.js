@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+// import cors from "cors";
 
 import { connectDB } from "../config/db.js";
 import sessionConfig from "../config/sessionConfig.js";
@@ -11,9 +12,14 @@ import sessionConfig from "../config/sessionConfig.js";
 import authRoutes from "../routes/authRoutes.js";
 import expenseRoutes from "../routes/expenseRoutes.js";
 import budgetRoutes from "../routes/budgetRoutes.js";
-import notificationRoutes from "../routes/notificationRoutes.js";
 import reportRoutes from "../routes/reportRoutes.js";
 
+// const corsOptions = {
+//   origin: "http://localhost:5173",
+//   credentials: true,
+// };
+
+// app.use(cors(corsOptions));
 dotenv.config();
 connectDB();
 
@@ -28,7 +34,6 @@ app.use(session(sessionConfig));
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/budgets", budgetRoutes);
-app.use("/api/notifications", notificationRoutes);
 app.use("/api/reports", reportRoutes);
 
 // Test route
